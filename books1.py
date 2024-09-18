@@ -9,13 +9,15 @@ class Book:
     author : str
     desc: str
     rating: str
+    pub_date:int
 
-    def __init__(self, id, title, author, desc, rating):
+    def __init__(self, id, title, author, desc, rating, pub_date):
         self.id = id
         self.title = title
         self.author = author
         self.desc = desc
         self.rating = rating
+        self.pub_date = pub_date
 
 
 class BookRequest(BaseModel):
@@ -24,6 +26,7 @@ class BookRequest(BaseModel):
     author: str = Field(min_length=4)
     desc: str = Field(max_length=20)
     rating: int = Field(gt=0,lt=6) # 1-5 range
+    pub_date : int = Field(gt=1999,lt=2024)
 
     model_config = {
         "json_schema_extra":{
@@ -31,17 +34,18 @@ class BookRequest(BaseModel):
                 "title": "A new Book",
                 "author": "Coder",
                 "desc": "Describing the book",
-                "rating" : 5
+                "rating" : 5,
+                "pub_date":2000
             }
         }
     }
 BOOKS=[
-    Book(1, "ABC", "Anuj", "adsglasdgasdb", 10),
-    Book(2, "def", "Abhi", "adsglasdgasdb", 5),
-    Book(3, "hij", "Tikhe", "adsglasdgasdb", 6),
-    Book(4, "jkl", "Harshu", "adsglasdgasdb", 16),
-    Book(5, "mno", "Babu", "adsglasdgasdb", 18),
-    Book(6, "pqr", "Guddu", "adsglasdgasdb", 11),
+    Book(1, "ABC", "Anuj", "adsglasdgasdb", 10,2012),
+    Book(2, "def", "Abhi", "adsglasdgasdb", 5,2016),
+    Book(3, "hij", "Tikhe", "adsglasdgasdb", 6,2018),
+    Book(4, "jkl", "Harshu", "adsglasdgasdb", 16,2020),
+    Book(5, "mno", "Babu", "adsglasdgasdb", 18,2022),
+    Book(6, "pqr", "Guddu", "adsglasdgasdb", 11,1996),
 ]
 
 app = FastAPI()
@@ -78,6 +82,21 @@ async def update_book_by_id(book:BookRequest):
         if BOOKS[i].id == book.id:
             BOOKS[i]=Book(**book.model_dump())
             return {"message": "Book Updated"}
+
+@app.delete("/books/{book_id}")
+async def delete_book_by_id(book_id:int):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book_id:
+            BOOKS.pop(i)
+            break
+
+@app.get("/books/publish/{date}")
+async def read_book_by_pub_date(date:int):
+    books_to_return = []
+    for book in BOOKS:
+        if book.pub_date == date:
+            books_to_return.append(book)
+    return books_to_return
 
 
 def find_book_id(book: Book):
