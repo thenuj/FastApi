@@ -1,7 +1,8 @@
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException,Path,Query
 from pydantic import BaseModel,Field
 
+# with the help of Path and query we can add data validation to path and query parameters.
 
 class Book:
     id: int
@@ -52,15 +53,14 @@ app = FastAPI()
 
 @app.get("/books")
 async def read_all_books():
-    return BOOKS
+    return BOOKS,HTTPException(200,detail="Request Successful")
 
 @app.get("/books/{book_id}")
 async def read_book_by_id(book_id:int):
     for book in BOOKS:
         if book.id == book_id:
             return book
-    return {"Error": "Book not found"}
-
+    raise HTTPException(404,detail='Item Not Found')
 
 @app.get("/books/")
 async def read_books_by_rating(book_rating:int):
@@ -69,7 +69,7 @@ async def read_books_by_rating(book_rating:int):
         if book.rating == book_rating:
             books_to_return.append(book)
             return books_to_return
-    return {"Error": "Book not found"}
+    raise HTTPException(404,detail='Item Not Found')
 
 @app.post("/books/create_book")
 async def create_book(book_request:BookRequest):
@@ -78,17 +78,25 @@ async def create_book(book_request:BookRequest):
 
 @app.put("/books/update_book")
 async def update_book_by_id(book:BookRequest):
+    book_updated = False
     for i in range(len(BOOKS)):
         if BOOKS[i].id == book.id:
             BOOKS[i]=Book(**book.model_dump())
-            return {"message": "Book Updated"}
+            book_updated = True
+            return HTTPException(200,detail='Book updated successfully')
+    if not book_updated:
+        raise HTTPException(404, detail='Item Not Found')
 
 @app.delete("/books/{book_id}")
 async def delete_book_by_id(book_id:int):
+    book_deleted = False
     for i in range(len(BOOKS)):
         if BOOKS[i].id == book_id:
             BOOKS.pop(i)
+            book_deleted = True
             break
+    if not book_deleted:
+        raise HTTPException(404, detail='Item Not Found')
 
 @app.get("/books/publish/{date}")
 async def read_book_by_pub_date(date:int):
@@ -96,7 +104,11 @@ async def read_book_by_pub_date(date:int):
     for book in BOOKS:
         if book.pub_date == date:
             books_to_return.append(book)
-    return books_to_return
+    if len(books_to_return)>0:
+        return books_to_return
+    else:
+        raise HTTPException(404, detail='Item Not Found')
+
 
 
 def find_book_id(book: Book):
