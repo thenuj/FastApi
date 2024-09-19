@@ -22,7 +22,7 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 class TodoRequest(BaseModel):
     title: str = Field(min_length=3)
-    desc: str = Field(min_length=3,max_length=100)
+    description: str = Field(min_length=3,max_length=100)
     priority: int = Field(gt=0,lt=6)
     progress: bool
 
@@ -61,7 +61,7 @@ async def update_todo(user: user_dependency,
     if todo_model is None:
         raise HTTPException(404, detail='Todo Not Found')
     todo_model.title = todo_req.title
-    todo_model.desc = todo_req.desc
+    todo_model.description = todo_req.description
     todo_model.priority = todo_req.priority
     todo_model.progress = todo_req.progress
 
