@@ -58,8 +58,8 @@ def authenticate_user(username, password, db):
     return user
 # authenticates user from db
 
-def create_access_token(username:str, user_id:int, expires_delta:timedelta):
-    encode = {'sub':username, 'id': user_id}
+def create_access_token(username:str, user_id:int,role:str, expires_delta:timedelta):
+    encode = {'username':username, 'id': user_id, 'role': role}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({'exp':expires})
     return jwt.encode(encode,SECRET_KEY,algorithm=ALGORITHM)
@@ -70,11 +70,12 @@ def create_access_token(username:str, user_id:int, expires_delta:timedelta):
 async def get_current_user(token:Annotated[str,Depends(Oauth2_bearer)]):
     try:
         payload = jwt.decode(token,SECRET_KEY,algorithms=ALGORITHM)
-        username: str = payload.get('sub')
+        username: str = payload.get('username')
         user_id: int = payload.get('id')
+        user_role: str = payload.get('role')
         if username is None or user_id is None:
             raise HTTPException(401, detail='Invalid User')
-        return {'username': username, 'user_id':user_id}
+        return {'username': username, 'user_id':user_id,'role':user_role}
     except JWTError:
         raise HTTPException(401, detail='Invalid User')
 # decodes the jwt token
@@ -98,6 +99,6 @@ async def login_for_access_token(form:form_data,db:db_dependency):
     user = authenticate_user(form.username,form.password,db)
     if not user:
         return 'Failed Authentication'
-    token = create_access_token(user.username, user.id, timedelta(minutes=20))
+    token = create_access_token(user.username, user.id, user.role, timedelta(minutes=20))
     return {'access_token':token,'token_type':'bearer'}
 # user1 : 1234 Anuj : 1234
