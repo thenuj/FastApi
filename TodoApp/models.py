@@ -7,5 +7,5 @@ class Todos(Base):
     id = Column(INTEGER,primary_key=True,index=True)
     title = Column(String)
     desc = Column(String)
-    priority = Column(String)
+    priority = Column(INTEGER)
     progress = Column(Boolean,default=False)
