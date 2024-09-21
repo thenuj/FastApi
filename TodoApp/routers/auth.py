@@ -1,14 +1,14 @@
 from datetime import timedelta, datetime, timezone
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
-
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette import status
 from jose import jwt, JWTError
-from database import SessionLocal
-from models import Users
+from TodoApp.database import SessionLocal
+from TodoApp.models import Users
 from passlib.context import CryptContext
 
 
@@ -33,6 +33,8 @@ form_data = Annotated[OAuth2PasswordRequestForm,Depends()]
 Oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 # examples of dependency injection
 
+templates = Jinja2Templates(directory="TodoApp/templates")
+
 bcrypt_context = CryptContext(schemes=['bcrypt'],deprecated='auto')
 # Hashing algorithm of bcrypt
 
@@ -48,7 +50,17 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+### Pages ###
+@router.get("/login-page")
+def render_login_page(request:Request):
+    return templates.TemplateResponse("login.html", {"request": request})
 
+@router.get("/register-page")
+def render_register_page(request:Request):
+    return templates.TemplateResponse("register.html", {"request": request})
+
+
+### Endpoints ###
 def authenticate_user(username, password, db):
     user = db.query(Users).filter(Users.username == username).first()
     if not user:

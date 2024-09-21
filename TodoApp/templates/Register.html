@@ -1,0 +1,42 @@
+{% include 'layout.html' %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            Register
+        </div>
+        <div class="card-body">
+            <form id="registerForm">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label> Enter username</label>
+                        <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label> Enter FirstName</label>
+                        <input type="text" class="form-control" name="fname" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label> Enter Lastname</label>
+                        <input type="text" class="form-control" name="lname" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Role</label>
+                        <input type="text" class="form-control" name="role" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label> Enter password </label>
+                    <input type="password" class="form-control" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label> Verify password </label>
+                    <input type="password" class="form-control" name="password2" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+        <div class="card-footer text-muted">
+            <a href="/auth/login-page"> Already have an Account?</a>
+        </div>
+    </div>
+</div>

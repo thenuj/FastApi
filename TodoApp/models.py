@@ -1,6 +1,4 @@
-from sqlalchemy.testing.suite.test_reflection import users
-
-from database import Base
+from TodoApp.database import Base
 from sqlalchemy import Column, INTEGER, String, Boolean, ForeignKey
 
 
